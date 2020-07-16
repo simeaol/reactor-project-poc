@@ -119,8 +119,9 @@ public class FluxTest {
     @Test
     public void fluxSubscriberBackpressureWithLimitRate(){
         Flux<Integer> flux = Flux.range(1, 10)
+                .log() //for some reason when log is after limitRate it doesn't work
                 .limitRate(3)
-                .log();
+                ;
 
         flux.subscribe(i -> log.info("Number {}", i));
 
@@ -146,8 +147,10 @@ public class FluxTest {
     public void fluxSubscriberIntervalTwo(){
         StepVerifier.withVirtualTime(this::createInterval)
                 .expectSubscription()
-                .thenAwait(Duration.ofDays(2))
+                .expectNoEvent(Duration.ofHours(24))//Make sure no event are been published before defined interval, otherwise(if some data was published before this timestamp), throw exception
+                .thenAwait(Duration.ofDays(1))
                 .expectNext(0L)
+                .thenAwait(Duration.ofDays(1))
                 .expectNext(1L)
                 .thenCancel()
                 .verify();

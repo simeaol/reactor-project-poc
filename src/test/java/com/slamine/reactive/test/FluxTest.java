@@ -3,6 +3,8 @@ package com.slamine.reactive.test;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.blockhound.BlockHound;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -205,6 +207,43 @@ public class FluxTest {
                 .expectNext(1,2,3,4,5,6,7,8,9,10)
                 .expectComplete()
                 .verify();
+    }
+
+    @Test
+    public void fluxSubscribeNumbersWithBackPressureOf2(){
+        Flux<Integer> flux = Flux.range(1, 10)
+                .log();
+
+        flux.subscribe(new Subscriber<Integer>() {
+            private int count;
+            private Subscription subscription;
+            @Override
+            public void onSubscribe(Subscription subscription) {
+                this.subscription = subscription;
+                subscription.request(5);
+            }
+
+            @Override
+            public void onNext(Integer integer) {
+                count++;
+                if(count >= 2){
+                    count = 0;
+                    subscription.request(2);
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
     }
 
 }

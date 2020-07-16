@@ -37,7 +37,7 @@ public class OperatorsTest {
                     log.info("Map-1 - number {} on Thread {}", i, Thread.currentThread().getName());
                     return i;
                 })
-                .subscribeOn(Schedulers.boundedElastic()) //Affect both previous of after instructions declared
+                .subscribeOn(Schedulers.boundedElastic()) //Affect both previous of after instructions declared. Subscribe on execute in a single thread
                 .map(i -> {
                     log.info("Map-2 - number {} on Thread {}", i, Thread.currentThread().getName());
                     return i;

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import reactor.blockhound.BlockHound;
+import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -242,6 +243,32 @@ public class FluxTest {
 
             }
         });
+
+
+    }
+
+    @Test
+    public void fluxSubscribeNumbersWithBackPressureOf2Improved(){
+        Flux<Integer> flux = Flux.range(1, 10)
+                .log();
+
+        flux.subscribe(new BaseSubscriber<Integer>() {
+            int count = 0;
+            @Override
+            protected void hookOnSubscribe(Subscription subscription) {
+                request(2);
+            }
+
+            @Override
+            protected void hookOnNext(Integer value) {
+                count++;
+                if(count >= 2){
+                    count = 0;
+                    request(2);
+                }
+            }
+        });
+
 
 
     }

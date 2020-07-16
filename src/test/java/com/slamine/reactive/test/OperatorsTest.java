@@ -56,7 +56,7 @@ public class OperatorsTest {
                     log.info("Map-1 - number {} on Thread {}", i, Thread.currentThread().getName());
                     return i;
                 })
-                .publishOn(Schedulers.single()) //Affect only the instruction declared after publishOn
+                .publishOn(Schedulers.single()) //Affect only the instruction declared after publishOn. Publish on is executed in separated Thread for each subscriber
                 .map(i -> {
                     log.info("Map-2 - number {} on Thread {}", i, Thread.currentThread().getName());
                     return i;
